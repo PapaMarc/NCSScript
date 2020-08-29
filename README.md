@@ -1,7 +1,7 @@
 # NetCam Studio - System ARM/DisARM console
 Working prototype Windows UI for a NetCam Studio Service 'System Console' which facilitates:
-1) ARM/disARM of ALL cameras with one click (v. manually enabling motion on each cam individually in NCS Admin UI)
-2) 'ARM with Delay' so that one can ARM a system and leave the house, without all cameras firing and recording video of one's departure
+1) ARM/disARM of ALL cameras with 1 click v. manually enabling motion on each cam individually in NCS Admin UI
+2) 'ARM with Delay' so you can ARM and exit, without all cameras firing and recording your departure
 
 Depends on the NetCam Studio Service and its ability to entertain script commands.  
     cursory documentation here: https://netcamstudio.com/Api
