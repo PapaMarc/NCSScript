@@ -1,7 +1,7 @@
 # NetCam Studio - System ARM/DisARM console
-Working prototype Windows UI for a NetCam Studio Service 'System Console' which allows you to:
--ARM/disARM ALL cameras with one click (v. manually enabling motion on each cam individually)
--and to allow 'ARM with Delay' so that one can enable and leave the house, without all cameras firing and recording video of one's departure
+Working prototype Windows UI for a NetCam Studio Service 'System Console' which facilitates:
+1) ARM/disARM of ALL cameras with one click (v. manually enabling motion on each cam individually in NCS Admin UI)
+2) 'ARM with Delay' so that one can ARM a system and leave the house, without all cameras firing and recording video of one's departure
 
 Depends on the NetCam Studio Service and its ability to entertain script commands.  
     cursory documentation here: https://netcamstudio.com/Api
@@ -15,7 +15,7 @@ $MyNCSun = 'ReplaceWithYourNCSUserName'
 $MyNCSpwd = 'ReplaceWithYourNCSPassword'
 $MyNCSAuthToken = 'ReplaceWithYourNCSAuthToken'
 used to access the target NetCam Studio service with the account you established above/beyond the default NCS Admin acct.
-Set these to your prefered/personal values.  
+Set these, along with <$DelayInSec>, to your personal/preferred values.
 
 
 Installation:
