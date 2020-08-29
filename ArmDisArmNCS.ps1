@@ -34,22 +34,22 @@ $Action = 'Command Me'
 
 #Define URLS
 #Logon URL
-$URLLogon = "http://localhost:8124/Json/Login?username="$MyNCSun"%38password="$MyNCSpwd""
+$URLLogon = "http://localhost:8124/Json/Login?username=$MyNCSun%38%password=$MyNCSpwd"
 
 #Combo Cams URL
-$URLGetCams = "http://localhost:8124/Json/GetCameras?authToken="$MyNCSAuthToken""
+$URLGetCams = "http://localhost:8124/Json/GetCameras?authToken=$MyNCSAuthToken"
 
 #Set CamN for 'enable motion detection' (which facilitates recording to occur on motion)
-$URLCam0 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=0&enabled=true&authToken="$MyNCSAuthToken""
-$URLCam1 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=1&enabled=true&authToken="$MyNCSAuthToken""
-#$URLCam2 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=2&enabled=true&authToken="$MyNCSAuthToken""
-#$URLCam3 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=3&enabled=true&authToken="$MyNCSAuthToken""
+$URLCam0 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=0%38%enabled=true%38%authToken=$MyNCSAuthToken"
+$URLCam1 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=1%38%enabled=true%38%authToken=$MyNCSAuthToken"
+#$URLCam2 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=2&enabled=true&authToken=$MyNCSAuthToken"
+#$URLCam3 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=3&enabled=true&authToken=$MyNCSAuthToken"
 
 #disables motion detector on cameras causing motion triggered recording rules to no longer fire
-$URLCam0 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=0&enabled=false&authToken="$MyNCSAuthToken""
-$URLCam1 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=1&enabled=false&authToken="$MyNCSAuthToken""
-#$URLCam2 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=2&enabled=false&authToken="$MyNCSAuthToken""
-#$URLCam3 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=3&enabled=false&authToken="$MyNCSAuthToken""
+$URLCam0 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=0%38%enabled=false%38%authToken=$MyNCSAuthToken"
+$URLCam1 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=1%38%enabled=false%38%authToken=$MyNCSAuthToken"
+#$URLCam2 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=2&enabled=false&authToken=$MyNCSAuthToken"
+#$URLCam3 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=3&enabled=false&authToken=$MyNCSAuthToken"
 
 
 # Function Definitions
@@ -68,9 +68,28 @@ function Return_Combo () {
       {
         ServiceStart
       }
-     Elseif ( 6 -eq $ComboBox.SelectedIndex )
+      Elseif ( 2 -eq $ComboBox.SelectedIndex )
+      {
+        ServiceStop
+      }
+      Elseif ( 3 -eq $ComboBox.SelectedIndex )
+      {
+        Logon
+      }
+      Elseif ( 4 -eq $ComboBox.SelectedIndex )
+      {
+        GetCams
+      }
+      Elseif ( 5 -eq $ComboBox.SelectedIndex )
+      {
+        ArmNCS
+      }
+      Elseif ( 6 -eq $ComboBox.SelectedIndex )
       {
         ExitDelayCountdown
+      }Elseif ( 7 -eq $ComboBox.SelectedIndex )
+      {
+        DisArmNCS
       }
   }
 #
@@ -82,13 +101,13 @@ function ServiceStatus () {
 #
 # Start Status (ComboBox Index=1)
 function ServiceStart () {
-  Start-Service NetcamStudioSvc
+  Start-Service NetcamStudioSvc | Write-Output
 }
 
 #
 # Stop Status (ComboBox Index=2)
 function ServiceStop () {
-  Stop-Service "NetcamStudioSvc"
+  Stop-Service NetcamStudioSvc | Write-Output
 }
 #
 #Logon NetCam Studio (NCS) (ComboBox Index=3)
@@ -97,8 +116,8 @@ Function Logon () {
 }
 #
 #Get Cams  (ComboBox Index=4)
-Function ComboCams () {
-  PowerShell Invoke-WebRequest -Uri $URLComboCams -Method GET
+Function GetCams () {
+  PowerShell Invoke-WebRequest -Uri $URLGetCams -Method GET
 }
 
 #
