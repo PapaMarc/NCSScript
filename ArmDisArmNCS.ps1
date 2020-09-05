@@ -57,10 +57,11 @@ $URLCam1 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=1%38%ena
 #
 # Set ComboBox selection to var and take action
 function Return_Combo () {
-    $Action = $ComboBox.Text
-    $Label_ArmStatus.Text = $Action
-    $Label_ArmStatus.Refresh()
-     If ( 0 -eq $ComboBox.SelectedIndex )
+  $Action = $ComboBox.Text
+  $Label_ArmStatus.Text = $Action
+  $Label_ArmStatus.ForeColor= "Black"
+  $Label_ArmStatus.Refresh()
+         If ( 0 -eq $ComboBox.SelectedIndex )
      {
        ServiceStatus
      }
@@ -95,19 +96,34 @@ function Return_Combo () {
 #
 # Service Status (ComboBox Index=0)
 function ServiceStatus () {
-   Get-Service NetcamStudioSvc | Write-Output
+  $Result = Get-Service -Name NetcamStudioSvc
+  Write-Host "Service: "$Result.ServiceName
+  Write-Host "DisplayName: "$Result.Name
+  Write-Host "Status: "$Result.Status
+  #Some error handling for attempts to start/stop service without ADMIN perms
+  If ($null = $Error.Exception.InnerException) 
+    {
+    Write-Host "ErrorDetail: " $Error.Exception.InnerException -ForegroundColor Red
+    $Label_ArmStatus.Text = 'No can do... see console'
+    $Label_ArmStatus.ForeColor= "Red"
+    $Label_ArmStatus.Refresh()
+    }
+  $Error.Clear()
+  Write-Host "-----"
 }
 
 #
 # Start Status (ComboBox Index=1)
 function ServiceStart () {
-  Start-Service NetcamStudioSvc | Write-Output
+  Start-Service NetcamStudioSvc
+        ServiceStatus      
 }
 
 #
 # Stop Status (ComboBox Index=2)
 function ServiceStop () {
   Stop-Service NetcamStudioSvc | Write-Output
+    ServiceStatus
 }
 #
 #Logon NetCam Studio (NCS) (ComboBox Index=3)
@@ -133,9 +149,9 @@ Function ExitDelayCountdown () {
 #   update the UI
     $Label_ArmStatus.Text = "Arming System in: $TMinus"
        $Label_ArmStatus.Refresh()
+  }
 #   Added exit delay... NOW do the real work / call the ARM function...
 #   ArmNCS ()
-  }
 }
 
 #
@@ -180,6 +196,7 @@ Function DisArmNCS () {
 $Form_ArmDisArm = New-Object System.Windows.Forms.Form
   $Form_ArmDisArm.Text = "Arm / DisArm Console - NetCam Studio"
   $Form_ArmDisArm.Size = New-Object System.Drawing.Size(500,300)
+  $Form_ArmDisArm.StartPosition = "CenterScreen"
   
 $ComboBox = New-Object System.Windows.Forms.ComboBox
   $ComboBox.Location = New-Object System.Drawing.Point(10,40)
@@ -187,8 +204,8 @@ $ComboBox = New-Object System.Windows.Forms.ComboBox
   $ComboBox.Height = 80
 #  [void] $ComboBox.Items.AddRange($Array_Actions[0..7])
   [void] $ComboBox.Items.Add('NCS Service Status')
-  [void] $ComboBox.Items.Add('NCS Service Start')
-  [void] $ComboBox.Items.Add('NVS Service Stop')
+  [void] $ComboBox.Items.Add('NCS Service Start <ADMIN required>')
+  [void] $ComboBox.Items.Add('NCS Service Stop <ADMIN required>')
   [void] $ComboBox.Items.Add('NCS Logon')
   [void] $ComboBox.Items.Add('NCS Enumerate Cams')
   [void] $ComboBox.Items.Add('ARM NCS')
@@ -197,8 +214,8 @@ $ComboBox = New-Object System.Windows.Forms.ComboBox
 
 $Label_ArmStatus = New-Object System.Windows.Forms.Label
   $Label_ArmStatus.Text = 'Awaiting your command'
-  $Label_ArmStatus.Location = New-Object System.Drawing.Size(100,200)
-  $Label_ArmStatus.Size = New-Object System.Drawing.Size(300,30)
+  $Label_ArmStatus.Location = New-Object System.Drawing.Size(75,200)
+  $Label_ArmStatus.Size = New-Object System.Drawing.Size(400,30)
 #  $Label_ArmStatus.AutoSize = $true
   $Label_ArmStatus.Font = [System.Drawing.Font]::new("Microsoft Sans Serif", 16, [System.Drawing.FontStyle]::Bold)
 
