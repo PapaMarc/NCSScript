@@ -22,6 +22,10 @@ With any luck, this will give you a head start at a common end-user scenario. En
 #Define vars
 #Definie NetCamStudio specific logon related vars
 
+#uncomment 1 of the following 2. 1st is for 32bit NCS service installation; 2nd is for 64bit
+#$NCS = 'NetcamStudioSvc'
+$NCS = 'NetcamStudioSvc64'
+
 $MyNCSun = 'ReplaceWithYourNCSUserName'
 $MyNCSpwd = 'ReplaceWithYourNCSPassword'
 $MyNCSAuthToken = 'ReplaceWithYourNCSAuthToken'
@@ -120,7 +124,7 @@ function Return_Combo () {
 #
 # Service Status (ComboBox Index=0)
 function WinServiceStatus () {
-  $Result = Get-Service -Name NetcamStudioSvc
+  $Result = Get-Service -Name $NCS
   Write-Host "Service: "$Result.ServiceName
   Write-Host "DisplayName: "$Result.Name
   Write-Host "Status: "$Result.Status
@@ -139,14 +143,14 @@ function WinServiceStatus () {
 #
 # Start Status (ComboBox Index=1)
 function ServiceStart () {
-  Start-Service NetcamStudioSvc
+  Start-Service $NCS
         ServiceStatus      
 }
 
 #
 # Stop Status (ComboBox Index=2)
 function ServiceStop () {
-  Stop-Service NetcamStudioSvc | Write-Output
+  Stop-Service $NCS | Write-Output
     ServiceStatus
 }
 #
