@@ -21,6 +21,7 @@ With any luck, this will give you a head start at a common end-user scenario. En
 #Define Variables, Arrays, URLs etc
 #Define vars
 #Definie NetCamStudio specific logon related vars
+
 $MyNCSun = 'ReplaceWithYourNCSUserName'
 $MyNCSpwd = 'ReplaceWithYourNCSPassword'
 $MyNCSAuthToken = 'ReplaceWithYourNCSAuthToken'
@@ -34,22 +35,26 @@ $Action = 'Command Me'
 
 #Define URLS
 #Logon URL
-$URLLogon = "http://localhost:8124/Json/Login?username=$MyNCSun%38%password=$MyNCSpwd"
+$URLLogon ="http://localhost:8124/Json/Login?username="+$MyNCSun+"&"+"password="+"$MyNCSpwd"
 
 #Combo Cams URL
-$URLGetCams = "http://localhost:8124/Json/GetCameras?authToken=$MyNCSAuthToken"
+$URLGetCams ="http://localhost:8124/Json/GetCameras?authToken="+"$MyNCSAuthToken"
 
 #Set CamN for 'enable motion detection' (which facilitates recording to occur on motion)
-$URLCam0 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=0%38%enabled=true%38%authToken=$MyNCSAuthToken"
-$URLCam1 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=1%38%enabled=true%38%authToken=$MyNCSAuthToken"
-#$URLCam2 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=2&enabled=true&authToken=$MyNCSAuthToken"
-#$URLCam3 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=3&enabled=true&authToken=$MyNCSAuthToken"
+$URLEnMoCam0 ="http://localhost:8124/Json/StartStopMotionDetector?sourceId=0"+"&"+"enabled=true"+"&"+"authToken="+"$MyNCSAuthToken"
+$URLEnMoCam1 ="http://localhost:8124/Json/StartStopMotionDetector?sourceId=1"+"&"+"enabled=true"+"&"+"authToken="+"$MyNCSAuthToken"
+#Bedroom
+#$URLEnMoCam2 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=2"+"&"+"enabled=true"+"&"+"authToken="+"$MyNCSAuthToken"
+#LaptopWebCam
+#$URLEnMoCam3 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=3"+"&"+"enabled=true&authToken="+"$MyNCSAuthToken"
 
 #disables motion detector on cameras causing motion triggered recording rules to no longer fire
-$URLCam0 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=0%38%enabled=false%38%authToken=$MyNCSAuthToken"
-$URLCam1 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=1%38%enabled=false%38%authToken=$MyNCSAuthToken"
-#$URLCam2 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=2&enabled=false&authToken=$MyNCSAuthToken"
-#$URLCam3 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=3&enabled=false&authToken=$MyNCSAuthToken"
+$URLDisMoCam0 ="http://localhost:8124/Json/StartStopMotionDetector?sourceId=0"+"&"+"enabled=false"+"&"+"authToken="+"$MyNCSAuthToken"
+$URLDisMoCam1 ="http://localhost:8124/Json/StartStopMotionDetector?sourceId=1"+"&"+"enabled=false"+"&"+"authToken="+"$MyNCSAuthToken"
+#Bedroom
+#$URLDisMoCam2 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=2"+"&"+"enabled=false"+"&"+"authToken="+"$MyNCSAuthToken"
+#LaptopWebCam
+#$URLDisMoCam3 = "http://localhost:8124/Json/StartStopMotionDetector?sourceId=3"+"&"+"enabled=false"+"&"+"authToken="+"$MyNCSAuthToken"
 
 
 # Function Definitions
@@ -127,20 +132,24 @@ function ServiceStop () {
 }
 #
 #Logon NetCam Studio (NCS) (ComboBox Index=3)
-Function Logon () {
-  PowerShell Invoke-WebRequest -Uri $URLLogon -Method GET
+function Logon () {
+  Invoke-WebRequest -Uri $URLLogon -Method GET | Write-Host
+  $Error.Clear()
+  Write-Host "_____"
 }
 #
 #Get Cams  (ComboBox Index=4)
-Function GetCams () {
-  PowerShell Invoke-WebRequest -Uri $URLGetCams -Method GET
+function GetCams () {
+  Invoke-WebRequest -Uri $URLGetCams -Method GET | Write-Host
+  $Error.Clear()
+  Write-Host "_____"
 }
 
 #
 
 # Exit Delay Countdown Function (AND ARM) (ComboBox Index=6)
 #Clear-Host
-Function ExitDelayCountdown () {
+function ExitDelayCountdown () {
   1..$ExitDelayInSec | ForEach-Object { 
     Start-Sleep -s 1
     $TMinus=$ExitDelayInSec-$_
@@ -151,7 +160,7 @@ Function ExitDelayCountdown () {
        $Label_ArmStatus.Refresh()
   }
 #   Added exit delay... NOW do the real work / call the ARM function...
-#   ArmNCS ()
+ArmNCS
 }
 
 #
@@ -162,25 +171,27 @@ Function ExitDelayCountdown () {
 #$URLEnableCam3 = "http://localhost:8124/Json/ConnectCameraJson?sourceId=3&enabled=true&authToken="$MyNCSAuthToken""
 #Invoke-WebRequest -Uri $URLEnableCam3
 
-Function ArmNCS () {
+function ArmNCS () {
 Write-Host 'Arming System...'
 #non-verbose
-  Invoke-WebRequest -Uri $URLCam0
-  Invoke-WebRequest -Uri $URLCam1
+  Invoke-WebRequest -Uri $URLEnMoCam0
+  Invoke-WebRequest -Uri $URLEnMoCam1
   #Invoke-WebRequest -Uri $URLCam2
   #Invoke-WebRequest -Urk $UrlCam3
 Write-Host 'System ARMED!'
+Write-Host "-----"
     $Label_ArmStatus.Text = 'System ARMED!'
     $Label_ArmStatus.Refresh()
 }
 
 #
 # DisArm NCS  (ComboBox Index=7)
-Function DisArmNCS () {
-  Invoke-WebRequest -Uri $URLCam0
-  Invoke-WebRequest -Uri $URLCam1
+function DisArmNCS () {
+  Invoke-WebRequest -Uri $URLDisMoCam0
+  Invoke-WebRequest -Uri $URLDisMoCam1
   #Invoke-WebRequest -Uri $URLCam2
   Write-Host 'System disarmed'
+  Write-Host "-----"
     $Label_ArmStatus.Text = 'System disarmed'
     $Label_ArmStatus.Refresh()
 }
