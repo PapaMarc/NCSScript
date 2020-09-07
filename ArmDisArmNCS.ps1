@@ -34,11 +34,18 @@ $Action = 'Command Me'
 #$Array_Actions = @('NCS Service Status','NCS Service Start','NCS Service Stop','NCS Logon','NCS Enumerate Cams','ARM NCS','ARM NCS with DELAY','DisARM NCS')
 
 #Define URLS
-#Logon URL
+#Logon URL for NCS System
 $URLLogon ="http://localhost:8124/Json/Login?username="+$MyNCSun+"&"+"password="+"$MyNCSpwd"
 
+#Various NCS Service System Status update queries
 #Combo Cams URL
 $URLGetCams ="http://localhost:8124/Json/GetCameras?authToken="+"$MyNCSAuthToken"
+#ProcessInfo URL
+$URLProcessInfo ="http://localhost:8124/Json/GetProcessInfo?authToken="+"$MyNCSAuthToken"
+#ServiceStatus URL
+$URLServiceStatus ="http://localhost:8124/Json/GetServiceStatus?authToken="+"$MyNCSAuthToken"
+#FullReport URL
+$URLFullReport ="http://localhost:8124/Json/GetGlobalStatus?authToken="+"$MyNCSAuthToken"
 
 #Set CamN for 'enable motion detection' (which facilitates recording to occur on motion)
 $URLEnMoCam0 ="http://localhost:8124/Json/StartStopMotionDetector?sourceId=0"+"&"+"enabled=true"+"&"+"authToken="+"$MyNCSAuthToken"
@@ -68,7 +75,7 @@ function Return_Combo () {
   $Label_ArmStatus.Refresh()
          If ( 0 -eq $ComboBox.SelectedIndex )
      {
-       ServiceStatus
+       WinServiceStatus
      }
       Elseif ( 1 -eq $ComboBox.SelectedIndex )
       {
@@ -88,19 +95,31 @@ function Return_Combo () {
       }
       Elseif ( 5 -eq $ComboBox.SelectedIndex )
       {
-        ArmNCS
+        ProcessInfo
       }
       Elseif ( 6 -eq $ComboBox.SelectedIndex )
       {
+        ServiceStatus
+      }
+      Elseif ( 7 -eq $ComboBox.SelectedIndex )
+      {
+        FullReport
+      }
+      Elseif ( 8 -eq $ComboBox.SelectedIndex )
+      {
+        ArmNCS
+      }
+      Elseif ( 9 -eq $ComboBox.SelectedIndex )
+      {
         ExitDelayCountdown
-      }Elseif ( 7 -eq $ComboBox.SelectedIndex )
+      }Elseif ( 10 -eq $ComboBox.SelectedIndex )
       {
         DisArmNCS
       }
   }
 #
 # Service Status (ComboBox Index=0)
-function ServiceStatus () {
+function WinServiceStatus () {
   $Result = Get-Service -Name NetcamStudioSvc
   Write-Host "Service: "$Result.ServiceName
   Write-Host "DisplayName: "$Result.Name
@@ -144,10 +163,31 @@ function GetCams () {
   $Error.Clear()
   Write-Host "_____"
 }
+#
+#Get ProcessInfo  (ComboBox Index=5)
+function ProcessInfo () {
+  Invoke-WebRequest -Uri $URLProcessInfo -Method GET | Write-Host
+  $Error.Clear()
+  Write-Host "_____"
+}
+#
+#Get ServiceStatus  (ComboBox Index=6)
+function ServiceStatus () {
+  Invoke-WebRequest -Uri $URLServiceStatus -Method GET | Write-Host
+  $Error.Clear()
+  Write-Host "_____"
+}
+#
+#Get FullReport  (ComboBox Index=7)
+function FullReport () {
+  Invoke-WebRequest -Uri $URLFullReport -Method GET | Write-Host
+  $Error.Clear()
+  Write-Host "_____"
+}
 
 #
 
-# Exit Delay Countdown Function (AND ARM) (ComboBox Index=6)
+# Exit Delay Countdown Function (AND ARM) (ComboBox Index=9)
 #Clear-Host
 function ExitDelayCountdown () {
   1..$ExitDelayInSec | ForEach-Object { 
@@ -164,7 +204,7 @@ ArmNCS
 }
 
 #
-# Arm NCS  (ComboBox Index=5)
+# Arm NCS  (ComboBox Index=8)
 # Arms NCS on departure from apartment
 
 #Enable source: PC/tablet built-in screen webcam - enable/disable doesn't work
@@ -185,7 +225,7 @@ Write-Host "-----"
 }
 
 #
-# DisArm NCS  (ComboBox Index=7)
+# DisArm NCS  (ComboBox Index=10)
 function DisArmNCS () {
   Invoke-WebRequest -Uri $URLDisMoCam0
   Invoke-WebRequest -Uri $URLDisMoCam1
@@ -214,11 +254,14 @@ $ComboBox = New-Object System.Windows.Forms.ComboBox
   $ComboBox.Size = New-Object System.Drawing.Size(280,20)
   $ComboBox.Height = 80
 #  [void] $ComboBox.Items.AddRange($Array_Actions[0..7])
-  [void] $ComboBox.Items.Add('NCS Service Status')
-  [void] $ComboBox.Items.Add('NCS Service Start <ADMIN required>')
-  [void] $ComboBox.Items.Add('NCS Service Stop <ADMIN required>')
+  [void] $ComboBox.Items.Add('NCS WinService Status')
+  [void] $ComboBox.Items.Add('NCS WinService Start <ADMIN required>')
+  [void] $ComboBox.Items.Add('NCS WinService Stop <ADMIN required>')
   [void] $ComboBox.Items.Add('NCS Logon')
   [void] $ComboBox.Items.Add('NCS Enumerate Cams')
+  [void] $ComboBox.Items.Add('NCS Process Info')
+  [void] $ComboBox.Items.Add('NCS Service Status')
+  [void] $ComboBox.Items.Add('NCS Full Report')
   [void] $ComboBox.Items.Add('ARM NCS')
   [void] $ComboBox.Items.Add('ARM NCS with DELAY')
   [void] $ComboBox.Items.Add('DisARM NCS')
