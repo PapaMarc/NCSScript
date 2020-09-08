@@ -254,6 +254,7 @@ $Form_ArmDisArm = New-Object System.Windows.Forms.Form
   $Form_ArmDisArm.StartPosition = "CenterScreen"
   
 $ComboBox = New-Object System.Windows.Forms.ComboBox
+  $ComboBox.DropDownStyle = 'DropDownList'
   $ComboBox.Location = New-Object System.Drawing.Point(10,40)
   $ComboBox.Size = New-Object System.Drawing.Size(280,20)
   $ComboBox.Height = 80
