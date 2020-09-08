@@ -34,8 +34,9 @@ $MyNCSAuthToken = 'ReplaceWithYourNCSAuthToken'
 $ExitDelayInSec = 8
 $Action = 'Command Me'
 
-# Define Actions Array
-#$Array_Actions = @('NCS Service Status','NCS Service Start','NCS Service Stop','NCS Logon','NCS Enumerate Cams','ARM NCS','ARM NCS with DELAY','DisARM NCS')
+# Define NCSActions Array
+# used to populate ComboBox. Enumerated the initial Windows Service status/start/stop manually
+$Array_NCSActions = @('NCS Logon','NCS Enumerate Cams','NCS Process Info','NCS Service Status','NCS Full Report','ARM NCS','ARM NCS with DELAY','DisARM NCS')
 
 #Define URLS
 #Logon URL for NCS System
@@ -262,14 +263,19 @@ $ComboBox = New-Object System.Windows.Forms.ComboBox
   [void] $ComboBox.Items.Add('NCS WinService Status')
   [void] $ComboBox.Items.Add('NCS WinService Start <ADMIN required>')
   [void] $ComboBox.Items.Add('NCS WinService Stop <ADMIN required>')
-  [void] $ComboBox.Items.Add('NCS Logon')
-  [void] $ComboBox.Items.Add('NCS Enumerate Cams')
-  [void] $ComboBox.Items.Add('NCS Process Info')
-  [void] $ComboBox.Items.Add('NCS Service Status')
-  [void] $ComboBox.Items.Add('NCS Full Report')
-  [void] $ComboBox.Items.Add('ARM NCS')
-  [void] $ComboBox.Items.Add('ARM NCS with DELAY')
-  [void] $ComboBox.Items.Add('DisARM NCS')
+#  [void] $ComboBox.Items.Add('NCS Logon')
+#  [void] $ComboBox.Items.Add('NCS Enumerate Cams')
+#  [void] $ComboBox.Items.Add('NCS Process Info')
+#  [void] $ComboBox.Items.Add('NCS Service Status')
+#  [void] $ComboBox.Items.Add('NCS Full Report')
+#  [void] $ComboBox.Items.Add('ARM NCS')
+#  [void] $ComboBox.Items.Add('ARM NCS with DELAY')
+#  [void] $ComboBox.Items.Add('DisARM NCS')
+#  populate the rest of The ComboBox using an Array v manually just because...
+  foreach ($ArrayAction in $Array_NCSActions)
+  {
+    $ComboBox.Items.Add($ArrayAction)
+  }
 
 $Label_ArmStatus = New-Object System.Windows.Forms.Label
   $Label_ArmStatus.Text = 'Awaiting your command'

@@ -27,16 +27,17 @@ For further tutorial on executing powershell scripts, start here: https:/go.micr
 
 FUTURE todos moving fwd... in no particular order:
     
-    0) pursue some degree elegance, as at present there is precisely zero ;-(  This is a long overdue exercise for me learning PowerShell, VSCode and debugger, GitHub, etc.
-    1) Use Array to populate ComboBox v. manually filling it, and similar learning curve throughout... 
-    2) Better error handling, use of try/catch, etc
-    3) Cleanup formatting and related conventions... it's a mess.
-    4) Improve User ID and password handling wrt security; maybe add pwd to DisARM (currently relying on WinDesktop lockout/pwd to get back to console running on WinDesktop so anyone with access can hit the button and disarm. And look through code and see creds, etc.)
-    5) work through issues, wrt enabling/disabling a camera all together.  Doesn't appear to be accessible in NCS via json.
+
+    0) work through issues, wrt enabling/disabling a camera all together.  Doesn't appear to be accessible in NCS via json.
     eg. i don't want my laptop webcam always connected to the NCS server. I ONLY want to enable it, and then enable motion detection on it-- WHEN i want to ARM the system and depart. I DO NOT want that cam connected to the NetcamStudioSvc (and watching me at the computer) at ANY other time, nor do i want that service to 'hold onto' that camera which i may want to use with/for other apps like a Zoom call, etc. But when i leave my house, let alone my desk-- i want to know if/when anyone sits in front of the computer. So when ARM'ing the system, i'd like to attach the camera to NCS, and then include it as part of the system ARM'ing. More on that here:
     https://community.netcamstudio.com/t/cant-enable-disable-a-configured-cam-video-source-via-webapi/3895
-
-
+    Also... apparently no json logout implemented via the NCS service.  
+    In short-- Need to look into utilizing WCF / SOAP from powershell based on what i see via: http://localhost:8124/?singlewsdl and http://localhost:8124/?wsdl
+    1) add separators to the WinForms ComboBox DropDownList. Don't know how at present... 
+    2) Improve User ID and password handling wrt security; maybe add pwd to DisARM (currently relying on WinDesktop lockout/pwd to get back to console running on WinDesktop so anyone with access can hit the button and disarm. And look through code and see creds, etc.)
+    3) Better error handling, use of try/catch, etc
+    4) Cleanup formatting and related conventions... it's a mess.
+    5) pursue some degree elegance, as at present there is precisely zero ;-(  This is a long overdue exercise for me learning PowerShell, VSCode and debugger, GitHub, etc.
             
             
             
