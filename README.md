@@ -33,13 +33,12 @@ Set these, along with $ExitDelayInSec, to your personal/preferred values.
 
 
 Installation... a kin to my favorite sushi recipe... 'catch fish. serve.'  :-)
-    Place in the folder of your choice:
+    Accordingly... 'Place in the folder of your choice. Run the script.'
 
         a) ArmDisArmNCSv1.ps1 (the PowerShell script)
         b) the 2 jpg's and
         c) the ARMdisARM_NCS shortcut
 
-    Run the script.
 
 You may use the shortcut to run the PowerShell script; it demonstrates a working variation of the command line instruction to do so.
     (I use C:\Code\PowerShell\NCSScript as the folder which houses the files and the shortcut reflects that...
