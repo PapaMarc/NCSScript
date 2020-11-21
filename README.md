@@ -23,18 +23,22 @@ ArmDisArmNCS (ADA_NCS) depends on, and is made possible by the extensibility off
 Iterated on with PowerShell v5.1 in Win10... and also seems functional with PowerShell Core v7.0.3 udpate
 
 Near the top of the ArmDisArmNCS.ps1 file are 3 variables for the AuthToken, UserName and Password:
+
     1) $MyNCSun = 'ReplaceWithYourNCSUserName'
     2) $MyNCSpwd = 'ReplaceWithYourNCSPassword'
     3) $MyNCSAuthToken = 'ReplaceWithYourNCSAuthToken'
+
 used to access the target NetCam Studio service with the personal NCS user account you established above/beyond the default NCS Admin acct.
 Set these, along with $ExitDelayInSec, to your personal/preferred values.
 
 
 Installation... a kin to my favorite sushi recipe... 'catch fish. serve.'  :-)
     Place in the folder of your choice:
+
         a) ArmDisArmNCSv1.ps1 (the PowerShell script)
         b) the 2 jpg's and
         c) the ARMdisARM_NCS shortcut
+
     Run the script.
 
 You may use the shortcut to run the PowerShell script; it demonstrates a working variation of the command line instruction to do so.
