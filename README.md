@@ -1,9 +1,12 @@
-NetCam Studio - System ARM/DisARM (ADA_NCS, or ADA) console
+# NetCam Studio - System ARM/DisARM (ADA_NCS, or ADA) console
 
 ADA_NCS is a functional Windows UI for a NetCam Studio Service 'System Console' which facilitates:
-USABILITY (presuming one can handle using a Powershell script, and configuring a few variables) facilitates:
+
+USABILITY
+(presuming one can handle using a Powershell script, and configuring a few variables):
 1) ARM/disARM of ALL cameras (the whole house system) with a single click v. manually serially enabling motion on each of n cams within a running instance of the Netcam Studio Client.
 2) 'ARM (system) with Delay' so a residential/home user can ARM and exit, without all cameras firing and recording your departure along with all those family interactions while getting out the door together.  With any luck, you have NO videos recorded when you get back to review other than your entry, rather than several of people arguing about who put away who's shoes or jacket somewhere they can't find during stressful moments of running late. ;-)
+
 PERFORMANCE:
 3) The simplistic UI for ArmDisArmNCSv1 (ADA) itself neither renders video stream(s) nor requests video streams of the NCS Windows Service for rendering, which can result in some mouse delay (on modest personal systems hosting NCS) while right clicking on the video of each cam to 'enable motion' if/when one ARMs the cameras manually in the NCS Client. (Of course, once one has ARMed the system any system overhead imposed on the system as required by NCS, to have video ready/available such that it can be or is being persisted as part of 'motion recording' when triggered, will be a tax on the system used for hosting and associated with the NCS service process... but at that point, you're not trying to use the machine because you're out, and it's doing its thing as and 'by design').
 4) While commercial utilizations of NCS may likely warrant dedicating a beefy PC for hosting NCS, as a home-user i choose to run it on my primary PC/laptop which i often leave on my desk. So-- i'd like the 1-click ARM/DisARM console to further facilitate starting the NCS Windows Service which i do NOT usually keep running in the background. Thus-- when 'ARM' is selected in the ADA_NCS application, and if/when the WinService is not running already... ADA will start the NCS WinService, then logon to NCS prior to ARM'ing... AND ADA will remember this and then in this case stop the service (if it needed to be started when ARMing), as part of DisARMing the system after it has disabled motion recording for each of the n cameras defined.  ie. it will truly reverse the start state it encountered, and respect a potential end-user desire to minimze ANY impact on Windows System hosting NCS, by not running the service AT ALL, when NOT ARMed in the home user case with a personal (non-dedicated) PC used as the NCS hosting machine.
