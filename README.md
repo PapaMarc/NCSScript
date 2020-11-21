@@ -1,6 +1,6 @@
-# NetCam Studio - System ARM/DisARM (ADA_NCS, or ADA) console
+# NetCam Studio - System ARM/DisARM (ADA_NCS, or ADA) end-user console
 
-ADA_NCS aims to be a functional, Windows UI, NetCam Studio Service 'System Console' which facilitates:
+ADA_NCS aims to be a functional, Windows UI, NetCam Studio Service 'System Console' for end-users which facilitates:
 
 USABILITY
 (presuming one can handle using a Powershell script, and configuring a few variables):
