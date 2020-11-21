@@ -1,6 +1,6 @@
 # NetCam Studio - System ARM/DisARM (ADA_NCS, or ADA) console
 
-ADA_NCS is a functional Windows UI for a NetCam Studio Service 'System Console' which facilitates:
+ADA_NCS aims to be a functional, Windows UI, NetCam Studio Service 'System Console' which facilitates:
 
 USABILITY
 (presuming one can handle using a Powershell script, and configuring a few variables):
@@ -11,13 +11,12 @@ USABILITY
 PERFORMANCE:
 
 3) The simplistic UI for ArmDisArmNCSv1 (ADA) itself neither renders video stream(s) nor requests video streams of the NCS Windows Service for rendering, which can result in some mouse delay (on modest personal systems hosting NCS) while right clicking on the video of each cam to 'enable motion' if/when one ARMs the cameras manually in the NCS Client. (Of course, once one has ARMed the system any system overhead imposed on the system as required by NCS, to have video ready/available such that it can be or is being persisted as part of 'motion recording' when triggered, will be a tax on the system used for hosting and associated with the NCS service process... but at that point, you're not trying to use the machine because you're out, and it's doing its thing as and 'by design').
-
 4) While commercial utilizations of NCS may likely warrant dedicating a beefy PC for hosting NCS, as a home-user i choose to run it on my primary PC/laptop which i often leave on my desk. So-- i'd like the 1-click ARM/DisARM console to further facilitate starting the NCS Windows Service which i do NOT usually keep running in the background. Thus-- when 'ARM' is selected in the ADA_NCS application, and if/when the WinService is not running already... ADA will start the NCS WinService, then logon to NCS prior to ARM'ing... AND ADA will remember this and then in this case stop the service (if it needed to be started when ARMing), as part of DisARMing the system after it has disabled motion recording for each of the n cameras defined.  ie. it will truly reverse the start state it encountered, and respect a potential end-user desire to minimze ANY impact on Windows System hosting NCS, by not running the service AT ALL, when NOT ARMed in the home user case with a personal (non-dedicated) PC used as the NCS hosting machine.
 
-ArmDisArmNCSv1.ps1 is that next-turn-of-the-crank, 'smart, performant, 1click' ARM(w/delay)/DisARM System console.
+ArmDisArmNCSv1.ps1 is that next-turn-of-the-crank, 'smart, performant, 1click' ARM(w/delay)/DisARM System console. 
 ArmDisArmNCS.ps1 was it's predecessor prototype, which was simple proof of concept of NCS json extensibility, showing those basics 'moving on the screen'
 
-ArmDisArmNCS (ADA_NCS) depends on the NetCam Studio Service and its ability to entertain json script commands.  
+ArmDisArmNCS (ADA_NCS) depends on, and is made possible by the extensibility offered in and by the NetCam Studio Service and its ability to entertain json script commands.  
     The NCS documentation can be found here: https://netcamstudio.com/Api
     Forums here: https://community.netcamstudio.com/
 
