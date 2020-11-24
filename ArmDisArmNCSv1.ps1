@@ -219,7 +219,7 @@ function Logon () {
 
   # with service running... 
   else {
-    $msg = $output[0].AllElements[3].outerText | ConvertFrom-String
+    $script:msg = $output[0].AllElements[3].outerText | ConvertFrom-String
   }
   #Write-Host $msg
   #$stuff = $msg | ConvertFrom-String
@@ -242,6 +242,7 @@ function Logon () {
   elseif ("false," -eq $msg.p3) {
     Write-Host $msg.P2 $msg.P3
     Write-Host $msg.P4 $msg.P5 $msg.P6 $msg.P7 $msg.P8
+    Write-Host "NCS Logon failed"
     WinServiceStatus 1
     $Label_ArmStatus.ForeColor = "Tomato"
     $Label_ArmStatus.Text = "NCS Logon failed"
@@ -299,37 +300,49 @@ function FullReport () {
 
 # Exit Delay Countdown Function (AND ARM) (ComboBox Index=9)
 function ExitDelayCountdown () {
-  if (("ARMED" -ne $ADANCSstate) -and (1 -le $ExitDelayInSec)) {
-    1..$ExitDelayInSec | ForEach-Object { 
-      Start-Sleep -s 1
-      $TMinus = $ExitDelayInSec - $_
-      if (0 -ne $TMinus) {
-        Write-Progress -Activity "Arming System in: " -Status ($TMinus)
-        #   Write-Progress -Activity  -SecondsRemaining ($ExitDelayInSec) -PercentComplete ($ExitDelayInSec)
-        #   update the UI
-        if (8 -eq $TMinus) {
-          if ("true" -eq $Announce) {
-            $Speech.SpeakAsync("Arming in")
+  Logon
+  if ("false," -ne $msg.p3) {
+    if (("ARMED" -ne $ADANCSstate) -and (1 -le $ExitDelayInSec)) {
+      1..$ExitDelayInSec | ForEach-Object { 
+        Start-Sleep -s 1
+        $TMinus = $ExitDelayInSec - $_
+        if (0 -ne $TMinus) {
+          Write-Progress -Activity "Arming System in: " -Status ($TMinus)
+          #   Write-Progress -Activity  -SecondsRemaining ($ExitDelayInSec) -PercentComplete ($ExitDelayInSec)
+          #   update the UI
+          if (8 -eq $TMinus) {
+            if ("true" -eq $Announce) {
+              $Speech.SpeakAsync("Arming in")
+            }
           }
-        }
-        $Label_ArmStatus.ForeColor = "Tomato"
-        if (6 -gt $TMinus) {
-          if ("true" -eq $Announce) {
-            $Speech.SpeakAsync("$TMinus")
+          $Label_ArmStatus.ForeColor = "Tomato"
+          if (6 -gt $TMinus) {
+            if ("true" -eq $Announce) {
+              $Speech.SpeakAsync("$TMinus")
+            }
           }
+          $Label_ArmStatus.Text = "Arming System in: $TMinus"
+          $Label_ArmStatus.Refresh()
         }
-        $Label_ArmStatus.Text = "Arming System in: $TMinus"
-        $Label_ArmStatus.Refresh()
+        #   Added exit delay... NOW do the real work / call the ARM function...
       }
-      #   Added exit delay... NOW do the real work / call the ARM function...
     }
+    ArmNCS
   }
-  ArmNCS
+  if ("false," -eq $msg.p3) {
+    Write-Host "Arm System failed"
+    Write-Host "_____"
+  }
 }
 
 function ArmNCS () {
   RecordingNotification start
-  if ("ARMED" -ne $ADANCSstate) {
+  Logon   # no logoff at present via json, so reversal in AutoDisArm not accomodated for
+  if ("false," -eq $msg.p3) {
+    Write-Host "Arm System failed"
+    Write-Host "_____"
+  }
+  elseif ("ARMED" -ne $ADANCSstate) {
     Write-Host 'Arming System...'
     EnableCam true
     $motion = "true"
@@ -338,15 +351,18 @@ function ArmNCS () {
       #Write-Host "$URLMoCamx" # useful for testing to output to console; can comment out following invoke-webrequest to minimize churn on the service
       Invoke-WebRequest -Uri $URLMoCamx
     }
-    Write-Host 'System ARMED!'
-    Write-Host "_*_*_*_*_"
-    $script:ADANCSstate = "ARMED"
-    DisplayImage
-  }
-  $Label_ArmStatus.Text = 'System ARMED!'
-  $Label_ArmStatus.ForeColor = "Tomato"
-  if ("true" -eq $Announce) {
-    $Speech.Speak("System, ARMED!")
+    if ("false," -ne $msg.p3) { 
+      Write-Host 'System ARMED!'
+      Write-Host "_*_*_*_*_"
+      $script:ADANCSstate = "ARMED"
+      DisplayImage
+
+      $Label_ArmStatus.Text = 'System ARMED!'
+      $Label_ArmStatus.ForeColor = "Tomato"
+      if ("true" -eq $Announce) {
+        $Speech.Speak("System, ARMED!")
+      }
+    }
   }
 }
 
@@ -421,7 +437,7 @@ the following function is fraught with potential issues
 it is minimally tested and PRONE to error... due to cursory, inexhaustive handling of path, date/time at present wrt complexities across days, etc...
 and exceedingly limited investment in testing of, and error handling.
 It's working for me as a quick/dirty heads up at the moment
-feel free to disable the two calls to it currently living in the ArmNCS and DisARMNCS functions on/around line 331 & 370 respectively
+feel free to disable the two calls to it currently living in the ArmNCS and DisARMNCS functions on/around line 339 & 386 respectively
 by commenting those 2 lines if you're hitting cases i didn't explore, and it is problematic for you
 #>
 function RecordingNotification ($startStop) {
@@ -464,13 +480,16 @@ function Allin1_AutoArm () {
     Logon   # no logoff at present via json, so reversal in AutoDisArm not accomodated for
     if ("false," -eq $msg.p3) {
       Write-Host "Auto-ArmSystem failed"
-      break
+      Write-Host "_____"
+      #      break
     }
-    ExitDelayCountdown
-  }
-  elseif ("ARMED" -eq $ADANCSstate) {
-    Write-Host "System is already ARMED"
-    Write-Host "_____"
+    elseif ("ARMED" -eq $ADANCSstate) {
+      Write-Host "System is already ARMED"
+      Write-Host "_____"
+    }
+    else {
+      ExitDelayCountdown
+    }
   }
 }
 
