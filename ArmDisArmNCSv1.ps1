@@ -85,7 +85,7 @@ $array_atHome = @(0, 2)
 
 
 # used to populate ComboBox. Enumerated the initial Windows Service status/start/stop manually
-$Array_NCSActions = @('NCS Logon', 'NCS Enumerate Cams', 'NCS Process Info', 'NCS Service Status', 'NCS Full Report', 'ARM NCS', 'ARM NCS with DELAY', 'ARM NCS@Home', 'DisARM NCS')
+$Array_NCSActions = @('NCS Logon', 'NCS Enumerate Cams', 'NCS Process Info', 'NCS Service Status', 'NCS Full Report', 'ARM NCS', 'ARM NCS with DELAY', 'ARM NCS@Home', 'Announce Video Tally', 'DisARM NCS')
 
 # Function Definitions
 function UpdateLable () {
@@ -139,6 +139,9 @@ function Return_Combo () {
     ExitDelayCountdown
   }
   Elseif ( 11 -eq $ComboBox.SelectedIndex ) {
+    VidCheckCount
+  }
+  Elseif ( 12 -eq $ComboBox.SelectedIndex ) {
     DisArmNCS
   }
 }
@@ -473,6 +476,26 @@ function RecordingNotification ($startStop) {
       Start-Process "$RecLibPath\$DateStr"
     }
   }
+}
+
+function VidCheckCount () {
+  # apologies for the ugly dupe; at some point perhaps i'll cleanup for proper reuse w/above
+  $DateStr = (Get-Date).ToString("yyyyMMdd")
+  $exist = Test-Path -Path "$RecLibPath\$DateStr"
+  if ("True" -eq $exist) {
+    $Speech.Speak("Today's recording folder")
+    $files = Get-ChildItem -Path "$RecLibPath\$DateStr" -File
+    foreach ($DT in $files.LastWriteTime) {
+      $count = $count + 1   # Give raw all up count for the day
+    }
+    if ($null -eq $count) {
+      $count = "0"
+    }
+    $Speech.Speak("contains $count motion captures")
+  } 
+  if ("False" -eq $exist) {
+    $Speech.Speak("nothing to see here, boss")
+  } 
 }
 
 
