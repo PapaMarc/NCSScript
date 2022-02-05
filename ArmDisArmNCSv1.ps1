@@ -59,7 +59,10 @@ $Speech = New-Object System.Speech.Synthesis.SpeechSynthesizer
 # uncomment 1 of the following 2.
 #$NCS = 'NetcamStudioSvc'   # this is the 32bit NCS Service
 $NCS = 'NetcamStudioSvc64'  # while this reflects the 64bit installation
-$RecLibPath = "C:\ProgramData\Moonware\Netcam Studio\Server\Library\Recordings"
+# uncomment for default NCS Library location
+#$RecLibPath = "C:\ProgramData\Moonware\Netcam Studio\Server\Library\Recordings"
+# or clarify custom Library location here
+$RecLibPath = "D:\NCS\Library\Recordings"
 
 $MyNCSun = 'ReplaceWithYourNCSUserName'
 $MyNCSpwd = 'ReplaceWithYourNCSPassword'
@@ -71,9 +74,9 @@ $Announce = "true"   #true will facilitate 5sec audible countdown & system ARMed
 
 # Array definitions
 # cams that will be enabled prior to Arming, and disconnected on DisArm
-$array_disAbleCams = @(2, 3)  #2=Bdrm  #3=Laptop
+$array_disAbleCams = @(1, 3)  #1=Table--> livingRm  #3=Laptop
 # cams to be Armed/DisArmed as part of the whole system
-$array_motionCams = @(0, 1, 2, 3)  #0=Couches  #1=Table
+$array_motionCams = @(0, 1, 2, 3)  #0=Couches-->Entry  #2=Bdrm-->Garage
 
 #----------------------------------------------
 #______Please be sure to configure these <above> properly for your NCS system______
@@ -394,12 +397,12 @@ function DisArmNCS () {
 # Per https://community.netcamstudio.com/t/cant-enable-disable-a-configured-cam-video-source-via-webapi/3895
 # The following is intended to attach aka 'enable' NCS configured cams (ie. ready for motion recording enabling, stream viewable in NCS admin console)
 # it will need to be verified and presumably tweaked somewhat upon release of this new enable/disable function
-# which at the moment i have assumed will be in the next turn of the crank which i further presume will be v1.9.3
-# I'll continue to monitor for the new export and update the code accordingly wrt version and URL syntax
+# This was initially developed against 1.9.2 and in Jan'22 on updating to 1.9.5 it still does not seem to be supported 
+# I'll continue to monitor for the new export and update the code accordingly wrt version and URL syntax, and until i see it supported i'll keep the version check which follows bumped beyond the current version in which it is not supported
 function EnableCam ($offOn) {
   # 'true' param passed in will enable cam(s), 'false' will disable/detach configured cam(s) from the NCS service
-  if ($NCSverInt -ge "193") {
-    # this function to be supported by NCS v1.9.3 or higher; prior versions do not support enablement/disablment of cams via json
+  if ($NCSverInt -ge "196") {
+    # this function to be supported by NCS v1.9.6 or higher thus checked for above; prior versions do not support enablement/disablment of cams via json
     foreach ($camX in $array_disAbleCams) {
       $URLAblementCamx = "http://localhost:8124/EnableCameraJson?sourceId=" + $camX + "&" + "enabled=" + $offOn + "&" + "authToken=" + "$MyNCSAuthToken"
       $script:ReverseEnablementLater = $offOn
