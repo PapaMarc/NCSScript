@@ -74,17 +74,18 @@ $Announce = "true"   #true will facilitate 5sec audible countdown & system ARMed
 
 # Array definitions
 # cams that will be enabled prior to Arming, and disconnected on DisArm
-$array_disAbleCams = @(1, 3)  #1=Table--> livingRm  #3=Laptop
+$array_disAbleCams = @(1, 3)  #1=livingRm  #3=Laptop
 # cams to be Armed/DisArmed as part of the whole system
-$array_motionCams = @(0, 1, 2, 3)  #0=Couches-->Entry  #2=Bdrm-->Garage
-
+$array_motionCams = @(0, 1, 2, 3)  #0=Entry  #2=Garage
+# by default, prior array is for arming while AWAY. The array which follows will overide when @Home is selected in GUI dropdown
+$array_atHome = @(0, 2)
 #----------------------------------------------
 #______Please be sure to configure these <above> properly for your NCS system______
 #----------------------------------------------
 
 
 # used to populate ComboBox. Enumerated the initial Windows Service status/start/stop manually
-$Array_NCSActions = @('NCS Logon', 'NCS Enumerate Cams', 'NCS Process Info', 'NCS Service Status', 'NCS Full Report', 'ARM NCS', 'ARM NCS with DELAY', 'DisARM NCS')
+$Array_NCSActions = @('NCS Logon', 'NCS Enumerate Cams', 'NCS Process Info', 'NCS Service Status', 'NCS Full Report', 'ARM NCS', 'ARM NCS with DELAY', 'ARM NCS@Home', 'DisARM NCS')
 
 # Function Definitions
 function UpdateLable () {
@@ -132,6 +133,12 @@ function Return_Combo () {
     ExitDelayCountdown
   }
   Elseif ( 10 -eq $ComboBox.SelectedIndex ) {
+    # a modified quick start of select cams for recording while at home
+    $ExitDelayInSec = 10
+    $array_motionCams = $array_atHome
+    ExitDelayCountdown
+  }
+  Elseif ( 11 -eq $ComboBox.SelectedIndex ) {
     DisArmNCS
   }
 }
