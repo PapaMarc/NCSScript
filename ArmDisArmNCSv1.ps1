@@ -214,53 +214,62 @@ function WinServiceStop () {
 #
 #Logon NetCam Studio (NCS) (ComboBox Index=3 , Array Index = 0)
 function Logon () {
-  $URLLogon = "http://localhost:8124/Json/Login?username=" + $MyNCSun + "&" + "password=" + "$MyNCSpwd"
-  $Error.Clear()
-  Invoke-WebRequest -Uri $URLLogon -Method GET -OutVariable output #| out-null not working to hide console output of Invoke-WebRequest -known issue, and partial fix for PSv7.1 and higher (for progress bar), though not in this case in my emperical usage... https://github.com/PowerShell/PowerShell/issues/1625 
-  #$Error | ../bin/Show-object.ps1
-  # with service stopped... this will error out.
-  if (("2" -eq $Error.Exception.Status.value__) -or ("10061" -eq $Error.Exception.InnerException.ErrorCode)) {
-    # 2 works for PSv5.1... PSv7+ use10061... go figure
-    Write-Host "Logon attempt:" $Error.Exception.Status
-    Write-Host "Logon attempt:" $Error.Exception.InnerException.Message
-    # could call for service start here...
-    WinServiceStatus 1
-  }
-  #Write-Host "STDOUT"
-  #Write-Host $output
-  #$msg = $output[0] | ../bin/Show-object.ps1
+  if ("ARMED" -ne $ADANCSstate) {
+    $URLLogon = "http://localhost:8124/Json/Login?username=" + $MyNCSun + "&" + "password=" + "$MyNCSpwd"
+    $Error.Clear()
+    Invoke-WebRequest -Uri $URLLogon -Method GET -OutVariable output #| out-null not working to hide console output of Invoke-WebRequest -known issue, and partial fix for PSv7.1 and higher (for progress bar), though not in this case in my emperical usage... https://github.com/PowerShell/PowerShell/issues/1625 
+    #$Error | ../bin/Show-object.ps1
+    # with service stopped... this will error out.
+    if (("2" -eq $Error.Exception.Status.value__) -or ("10061" -eq $Error.Exception.InnerException.ErrorCode)) {
+      # 2 works for PSv5.1... PSv7+ use10061... go figure
+      Write-Host "Logon attempt:" $Error.Exception.Status
+      Write-Host "Logon attempt:" $Error.Exception.InnerException.Message
+      # could call for service start here...
+      WinServiceStatus 1
+    }
+    #Write-Host "STDOUT"
+    #Write-Host $output
+    #$msg = $output[0] | ../bin/Show-object.ps1
 
-  # with service running... 
-  else {
-    $script:msg = $output[0].AllElements[3].outerText | ConvertFrom-String
-  }
-  #Write-Host $msg
-  #$stuff = $msg | ConvertFrom-String
-  #$stuff | ../bin/Show-object.ps1
+    # with service running... 
+    else {
+      $script:msg = $output[0].AllElements[3].outerText | ConvertFrom-String
+    }
+    #Write-Host $msg
+    #$stuff = $msg | ConvertFrom-String
+    #$stuff | ../bin/Show-object.ps1
 
-  # success looks like this
-  if ("true," -eq $msg.P3) {
-    Write-Host $msg.P2 $msg.P3
-    Write-Host $msg.P6 $msg.P7
-    Write-Host "_____"
-    Write-Host "NCS System: READY TO ARM!"
-    Write-Host "_____"
-    $Label_ArmStatus.ForeColor = "Green"
-    #$Label_ArmStatus.Refresh()
-    $Label_ArmStatus.Text = "NCS System: READY TO ARM!"
-    $script:ADANCSstate = "ReadyToARM"   # logged on
-    DisplayImage
+    # success looks like this
+    if ("true," -eq $msg.P3) {
+      Write-Host $msg.P2 $msg.P3
+      Write-Host $msg.P6 $msg.P7
+      Write-Host "_____"
+      Write-Host "NCS System: READY TO ARM!"
+      Write-Host "_____"
+      $Label_ArmStatus.ForeColor = "Green"
+      #$Label_ArmStatus.Refresh()
+      $Label_ArmStatus.Text = "NCS System: READY TO ARM!"
+      $script:ADANCSstate = "ReadyToARM"   # logged on
+      DisplayImage
+    }
+    # failure like this
+    elseif ("false," -eq $msg.p3) {
+      Write-Host $msg.P2 $msg.P3
+      Write-Host $msg.P4 $msg.P5 $msg.P6 $msg.P7 $msg.P8
+      Write-Host "NCS Logon failed"
+      WinServiceStatus 1
+      $Label_ArmStatus.ForeColor = "Tomato"
+      $Label_ArmStatus.Text = "NCS Logon failed"
+    }
+    $Error.Clear()
   }
-  # failure like this
-  elseif ("false," -eq $msg.p3) {
-    Write-Host $msg.P2 $msg.P3
-    Write-Host $msg.P4 $msg.P5 $msg.P6 $msg.P7 $msg.P8
-    Write-Host "NCS Logon failed"
-    WinServiceStatus 1
+  Elseif (("ARMED" -eq $ADANCSstate) -and ($Label_ArmStatus.Text -ne 'System ARMED!')) {
+    $Label_ArmStatus.Text = 'System ARMED!'
     $Label_ArmStatus.ForeColor = "Tomato"
-    $Label_ArmStatus.Text = "NCS Logon failed"
+    if ("true" -eq $Announce) {
+      $Speech.Speak("System, already ARMED. Bro!")
+    }
   }
-  $Error.Clear()
 }
 
 #
@@ -349,7 +358,9 @@ function ExitDelayCountdown () {
 }
 
 function ArmNCS () {
-  RecordingNotification start
+  if ("ARMED" -ne $ADANCSstate) {
+    RecordingNotification start
+  }
   Logon   # no logoff at present via json, so reversal in AutoDisArm not accomodated for
   if ("false," -eq $msg.p3) {
     Write-Host "Arm System failed"
@@ -486,12 +497,15 @@ function VidCheckCount () {
     $Speech.Speak("Today's recording folder")
     $files = Get-ChildItem -Path "$RecLibPath\$DateStr" -File
     foreach ($DT in $files.LastWriteTime) {
-      $count = $count + 1   # Give raw all up count for the day
+      $count = $count + 1   # Give raw/total all up count in the day's folder v. disarm which gives count within current ARM session
     }
     if ($null -eq $count) {
       $count = "0"
     }
     $Speech.Speak("contains $count motion captures")
+    if ("0" -eq $count) {
+      $Speech.Speak("Day ain't over yet")
+    }
   } 
   if ("False" -eq $exist) {
     $Speech.Speak("nothing to see here, boss")
