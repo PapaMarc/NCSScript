@@ -69,16 +69,19 @@ $MyNCSpwd = 'ReplaceWithYourNCSPassword'
 $MyNCSAuthToken = 'ReplaceWithYourNCSAuthToken'
 
 # Define ArmDisArmNCS application specific vars
-$ExitDelayInSec = 180
+$ExitDelayInSec = 18
 $Announce = "true"   #true will facilitate 5sec audible countdown & system ARMed/DisARMed announce.  "false" will silence the voice narration
 
 # Array definitions
 # cams that will be enabled prior to Arming, and disconnected on DisArm
 $array_disAbleCams = @(1, 3)  #1=livingRm  #3=Laptop
 # cams to be Armed/DisArmed as part of the whole system
-$array_motionCams = @(0, 1, 2, 3)  #0=Entry  #2=Garage
+$array_awayCams = @(0, 1, 2, 3)  #0=Entry  #2=Garage
 # by default, prior array is for arming while AWAY. The array which follows will overide when @Home is selected in GUI dropdown
 $array_atHome = @(0, 2)
+# in the event you don't use the dropdown set an initial default
+$array_motionCams = $array_awayCams
+# though thereafter the button will heed dropdown 'default' if you set away...
 #----------------------------------------------
 #______Please be sure to configure these <above> properly for your NCS system______
 #----------------------------------------------
@@ -127,15 +130,19 @@ function Return_Combo () {
     FullReport
   }
   Elseif ( 8 -eq $ComboBox.SelectedIndex ) {
+    $script:array_motionCams = $array_awayCams
+    $Button1.Text = "ARM system   <AWAY no delay>"
     ArmNCS
   }
   Elseif ( 9 -eq $ComboBox.SelectedIndex ) {
+    $Button1.Text = "ARM system   <AWAY with delay>"
     ExitDelayCountdown
   }
   Elseif ( 10 -eq $ComboBox.SelectedIndex ) {
     # a modified quick start of select cams for recording while at home
     $ExitDelayInSec = 10
-    $array_motionCams = $array_atHome
+    $Script:array_motionCams = $array_atHome
+    $Button1.Text = "ARM system <@Home>"
     ExitDelayCountdown
   }
   Elseif ( 11 -eq $ComboBox.SelectedIndex ) {
@@ -152,6 +159,12 @@ function isAdmin {
   $script:isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
 }
 
+function Return_Checkbox0 () {
+  If ($Checkbox0.Checked -eq $true)
+  { Write-Host "checkbox checked" }
+  elseif ($checkbox0.Checked -eq $false)
+  { Write-Host "checkbox UNchecked" }
+}
 function WinServiceStatus ([Int]$report) {
   $script:Result = Get-Service -Name $NCS
   If ( 1 -eq $report ) {
@@ -319,10 +332,18 @@ function FullReport () {
   $Error.Clear()
   Write-Host "_____"
 }
-
 # Exit Delay Countdown Function (AND ARM) (ComboBox Index=9)
 function ExitDelayCountdown () {
   Logon
+  $Button1.Text = "ARM system   <AWAY with delay>"
+  if (10 -eq $ComboBox.SelectedIndex ) {
+    $ExitDelayInSec = 10
+    $Button1.Text = "ARM system <@Home>"
+  }
+  if (8 -eq $ComboBox.SelectedIndex ) {
+    $Button1.Text = "ARM system   <AWAY no delay>"
+    ArmNCS
+  }
   if ("false," -ne $msg.p3) {
     if (("ARMED" -ne $ADANCSstate) -and (1 -le $ExitDelayInSec)) {
       1..$ExitDelayInSec | ForEach-Object { 
@@ -591,7 +612,7 @@ if ("Running" -eq $Label_ArmStatus.Text) {
   GetVer
 }
 
-$Label_ArmStatus.Location = New-Object System.Drawing.Size(30, 160)
+$Label_ArmStatus.Location = New-Object System.Drawing.Size(30, 180)
 $Label_ArmStatus.Size = New-Object System.Drawing.Size(400, 30)
 #  $Label_ArmStatus.AutoSize = $true
 $Label_ArmStatus.Font = [System.Drawing.Font]::new("Microsoft Sans Serif", 16, [System.Drawing.FontStyle]::Bold)
@@ -604,7 +625,18 @@ $Button0.Text = "DisArm system"
 $Button1 = New-Object System.Windows.Forms.Button
 $Button1.Size = New-Object System.Drawing.Size(120, 120)
 $Button1.Location = New-Object System.Drawing.Size(30, 30)
-$Button1.Text = "ARM system"
+$Button1.Text = "ARM system   <AWAY with delay>"
+
+$Checkbox0 = New-Object System.Windows.Forms.Checkbox
+$Checkbox0.Size = New-Object System.Drawing.Size(10, 10)
+$Checkbox0.Location = New-Object System.Drawing.Size(30, 155)
+#$Checkbox0.Text = "DISARM Sunset to Sunrise"
+$Label_cb0 = New-Object System.Windows.Forms.Label
+$Label_cb0.Location = New-Object System.Drawing.Size(45, 155)
+$Label_cb0.Size = New-Object System.Drawing.Size(300, 30)
+$Label_cb0.Font = [System.Drawing.Font]::new("Microsoft Sans Serif", 7, [System.Drawing.FontStyle]::Regular)
+$Label_cb0.Text = "DISARM Sunset to Sunrise"
+
 
 $pictureBox = New-Object Windows.Forms.PictureBox
 
@@ -613,9 +645,12 @@ $Form_ArmDisArm.Controls.Add($Label_ArmStatus)
 $Form_ArmDisArm.Controls.Add($ComboBox)
 $Form_ArmDisArm.Controls.Add($Button0)
 $Form_ArmDisArm.Controls.Add($Button1)
+$Form_ArmDisArm.Controls.Add($Checkbox0)
+$Form_ArmDisArm.Controls.Add($Label_cb0)
 $Form_ArmDisArm.controls.add($pictureBox)
 $Button0.Add_Click( { Reverse_AutoDisArm })
 $Button1.Add_Click( { Allin1_AutoArm })
 $ComboBox.Add_SelectedIndexChanged( { Return_Combo })
+$Checkbox0.Add_CheckStateChanged( { Return_Checkbox0 })
 
 $Form_ArmDisArm.ShowDialog()
